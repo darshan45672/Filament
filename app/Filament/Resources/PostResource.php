@@ -42,11 +42,13 @@ class PostResource extends Resource
                     ->collapsible()
                     ->schema([
                         TextInput::make('title')->label('Title')->required(),
-                        TextInput::make('slug')->label('Slug')->required(),
+                        TextInput::make('slug')->unique(ignoreRecord:true)->label('Slug')->required(),
 
-                        Select::make('category_id')->label('Category')->options(
-                            fn() => Category::all()->pluck('name', 'id')
-                        )->required(),
+                        // Select::make('category_id')->label('Category')->options(
+                        //     fn() => Category::all()->pluck('name', 'id')
+                        // )->required(),
+                        // or 
+                        Select::make('category_id')->label('Category')->relationship('category','name')->required(),
 
                         ColorPicker::make('color')->label('Color')->required(),
 
@@ -82,6 +84,7 @@ class PostResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
