@@ -12,12 +12,17 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\CheckboxColumn;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -32,26 +37,45 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('title')->label('Title')->required(),
-                TextInput::make('slug')->label('Slug')->required(),
+                Section::make('Create Post')
+                    ->description('Create a new post')
+                    ->collapsible()
+                    ->schema([
+                        TextInput::make('title')->label('Title')->required(),
+                        TextInput::make('slug')->label('Slug')->required(),
 
-                Select::make('category_id')->label('Category')->options(
-                    fn () => Category::all()->pluck('name', 'id')
-                )->required(),
+                        Select::make('category_id')->label('Category')->options(
+                            fn() => Category::all()->pluck('name', 'id')
+                        )->required(),
 
-                FileUpload::make('thumbnail')->label('Image')->required()->disk('public')->directory('thumbnails'),
-                ColorPicker::make('color')->label('Color')->required(),
-                MarkdownEditor::make('content')->label('Content')->required(),
-                TagsInput::make('tags')->label('Tags')->required(),
-                Checkbox::make('is_published')->label('Is Published'),
-            ]);
+                        ColorPicker::make('color')->label('Color')->required(),
+
+                        MarkdownEditor::make('content')->label('Content')->required()->columnSpan('full'),
+                    ])->columns(2)->columnSpan(1),
+
+                Section::make('Post Detials')
+                    ->description('Add post details')
+                    ->collapsible()
+                    ->schema([
+                        FileUpload::make('thumbnail')->label('Image')->required()->disk('public')->directory('thumbnails'),
+
+                        TagsInput::make('tags')->label('Tags')->required(),
+                        Checkbox::make('is_published')->label('Is Published'),
+                    ])->columns(1)->columnSpan(1),
+            ])->columns(2);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('thumbnail')->label('Image'),
+                ColorColumn::make('color')->label('Color')->sortable(),
+                TextColumn::make('title')->label('Title')->searchable()->sortable(),
+                TextColumn::make('slug')->label('Slug')->searchable()->sortable(),
+                TextColumn::make('category.name')->label('Category')->searchable()->sortable(),
+                TextColumn::make('tags')->label('Tags')->searchable(),
+                CheckboxColumn::make('is_published')->label('Is Published')->sortable(),
             ])
             ->filters([
                 //

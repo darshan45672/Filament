@@ -21,6 +21,8 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
+    protected static ?string $modelLabel = 'Posts Categories';
+
     public static function form(Form $form): Form
     {
         return $form
